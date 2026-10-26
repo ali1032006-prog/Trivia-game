@@ -1,0 +1,121 @@
+:root {
+  --bg: #f4f5f9;
+  --surface: #fff;
+  --text: #1c1e26;
+  --muted: #666b7a;
+  --accent: #4f46e5;
+  --good: #1a8f4c;
+  --good-bg: #e3f6ea;
+  --bad: #c62e2e;
+  --bad-bg: #fbe5e5;
+  --border: #d9dce6;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #14151b;
+    --surface: #1f2129;
+    --text: #eceef5;
+    --muted: #9aa0b2;
+    --accent: #8b85ff;
+    --good: #5fd18b;
+    --good-bg: #17382a;
+    --bad: #ff7b7b;
+    --bad-bg: #402020;
+    --border: #353844;
+  }
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font: 16px/1.4 system-ui, sans-serif;
+}
+
+#app {
+  max-width: 560px;
+  margin: 0 auto;
+  padding: 16px;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.header h1 { font-size: 1.1rem; margin: 0; }
+
+.score {
+  font-weight: 700;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 6px 14px;
+  white-space: nowrap;
+}
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 20px;
+}
+
+.progress { margin: 0 0 8px; color: var(--muted); font-size: 0.9rem; }
+.question { margin: 0 0 16px; font-size: 1.3rem; }
+
+.answers { display: grid; gap: 10px; }
+
+.answer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  padding: 14px 16px;
+  font: inherit;
+  color: var(--text);
+  background: var(--surface);
+  border: 2px solid var(--border);
+  border-radius: 12px;
+  cursor: pointer;
+  text-align: left;
+}
+
+.answer:not(:disabled):hover { border-color: var(--accent); }
+.answer:disabled { cursor: default; }
+.answer-mark { font-weight: 700; }
+
+.answer.correct, .answer.reveal { border-color: var(--good); background: var(--good-bg); }
+.answer.reveal { border-style: dashed; }
+.answer.wrong { border-color: var(--bad); background: var(--bad-bg); }
+
+.feedback {
+  margin: 16px 0 0;
+  padding: 10px 14px;
+  border-radius: 10px;
+  font-weight: 600;
+}
+.feedback.correct { color: var(--good); background: var(--good-bg); }
+.feedback.wrong { color: var(--bad); background: var(--bad-bg); }
+
+.primary {
+  margin-top: 16px;
+  width: 100%;
+  padding: 14px;
+  font: inherit;
+  font-weight: 600;
+  color: #fff;
+  background: var(--accent);
+  border: 0;
+  border-radius: 12px;
+  cursor: pointer;
+}
+
+.result { text-align: center; }
+.final-score { font-size: 3rem; font-weight: 800; margin: 8px 0; }
