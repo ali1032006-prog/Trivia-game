@@ -53,7 +53,7 @@ export default function StartScreen({ category, settings, onChange, onPlay }) {
         <ColorPicker value={settings.palette} onChange={(palette) => set({ palette })} />
       </Setting>
 
-      <PrimaryButton title="Play" onPress={onPlay} />
+      <PrimaryButton title="Start" onPress={onPlay} />
     </View>
   );
 }
