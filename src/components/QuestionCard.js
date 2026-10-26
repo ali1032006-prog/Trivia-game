@@ -21,12 +21,9 @@ export default function QuestionCard({
       {timerSeconds != null && (
         <TimerBar seconds={timerSeconds} running={!answered} onExpire={onExpire} />
       )}
-      <View style={styles.topRow}>
-        <Text style={[styles.progress, { color: t.accent }]}>
-          Question {index + 1} of {total}
-        </Text>
-        <FiftyFiftyButton used={fiftyUsed} disabled={answered} onPress={onFifty} />
-      </View>
+      <Text style={[styles.progress, { color: t.accent }]}>
+        Question {index + 1} of {total}
+      </Text>
       <Text style={[styles.question, { color: t.text }]}>{question.text}</Text>
 
       <View style={styles.answers}>
@@ -48,6 +45,10 @@ export default function QuestionCard({
         })}
       </View>
 
+      <View style={styles.lifeline}>
+        <FiftyFiftyButton used={fiftyUsed} disabled={answered} onPress={onFifty} />
+      </View>
+
       {answered && (
         <>
           <Feedback
@@ -64,8 +65,8 @@ export default function QuestionCard({
 
 const styles = StyleSheet.create({
   card: { borderWidth: 1, borderRadius: 24, padding: 20 },
-  topRow: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginBottom: 8 },
-  progress: { fontSize: 14, fontWeight: "800", textTransform: "uppercase" },
+  progress: { fontSize: 14, fontWeight: "800", marginBottom: 8, textTransform: "uppercase" },
+  lifeline: { alignItems: "center", marginTop: 16 },
   question: { fontSize: 24, fontWeight: "800", marginBottom: 18 },
   answers: { gap: 12 },
 });
