@@ -1,5 +1,5 @@
 // One category at a time. Swap this object to change the category.
-const CATEGORY = {
+export const CATEGORY = {
   name: "General Knowledge",
   questions: [
     {
