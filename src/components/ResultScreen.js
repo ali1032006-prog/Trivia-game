@@ -2,21 +2,22 @@ import { StyleSheet, Text, View } from "react-native";
 import { useTheme } from "../theme";
 import PrimaryButton from "./PrimaryButton";
 
-export default function ResultScreen({ score, total, onRestart }) {
+export default function ResultScreen({ score, total, onRestart, onSettings }) {
   const t = useTheme();
   return (
     <View style={[styles.card, { backgroundColor: t.surface, borderColor: t.border }]}>
       <Text style={[styles.title, { color: t.text }]}>Game over</Text>
-      <Text style={[styles.score, { color: t.text }]}>
+      <Text style={[styles.score, { color: t.accent }]}>
         {score} / {total}
       </Text>
       <PrimaryButton title="Play again" onPress={onRestart} />
+      <PrimaryButton title="Change settings" secondary onPress={onSettings} />
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  card: { borderWidth: 1, borderRadius: 16, padding: 20, alignItems: "stretch" },
-  title: { fontSize: 22, fontWeight: "700", textAlign: "center" },
-  score: { fontSize: 48, fontWeight: "800", textAlign: "center", marginVertical: 8 },
+  card: { borderWidth: 1, borderRadius: 24, padding: 20 },
+  title: { fontSize: 24, fontWeight: "800", textAlign: "center" },
+  score: { fontSize: 56, fontWeight: "900", textAlign: "center", marginVertical: 8 },
 });

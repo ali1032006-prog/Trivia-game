@@ -3,16 +3,23 @@ import { useTheme } from "../theme";
 import AnswerButton from "./AnswerButton";
 import Feedback from "./Feedback";
 import PrimaryButton from "./PrimaryButton";
+import TimerBar from "./TimerBar";
 
 // question: { text, answers, correct }; picked: index tapped or null
-export default function QuestionCard({ question, index, total, picked, onPick, onNext }) {
+// timerSeconds: null for no timer; timedOut: time ran out before a tap
+export default function QuestionCard({
+  question, index, total, picked, timedOut, timerSeconds, onPick, onExpire, onNext,
+}) {
   const t = useTheme();
-  const answered = picked !== null;
+  const answered = picked !== null || timedOut;
   const last = index === total - 1;
 
   return (
     <View style={[styles.card, { backgroundColor: t.surface, borderColor: t.border }]}>
-      <Text style={[styles.progress, { color: t.muted }]}>
+      {timerSeconds != null && (
+        <TimerBar seconds={timerSeconds} running={!answered} onExpire={onExpire} />
+      )}
+      <Text style={[styles.progress, { color: t.accent }]}>
         Question {index + 1} of {total}
       </Text>
       <Text style={[styles.question, { color: t.text }]}>{question.text}</Text>
@@ -26,6 +33,7 @@ export default function QuestionCard({ question, index, total, picked, onPick, o
             <AnswerButton
               key={label}
               label={label}
+              slot={i}
               state={state}
               disabled={answered}
               onPress={() => onPick(i)}
@@ -38,6 +46,7 @@ export default function QuestionCard({ question, index, total, picked, onPick, o
         <>
           <Feedback
             correct={picked === question.correct}
+            timedOut={timedOut}
             correctAnswer={question.answers[question.correct]}
           />
           <PrimaryButton title={last ? "See results" : "Next question"} onPress={onNext} />
@@ -48,8 +57,8 @@ export default function QuestionCard({ question, index, total, picked, onPick, o
 }
 
 const styles = StyleSheet.create({
-  card: { borderWidth: 1, borderRadius: 16, padding: 20 },
-  progress: { fontSize: 14, marginBottom: 8 },
-  question: { fontSize: 22, fontWeight: "700", marginBottom: 16 },
-  answers: { gap: 10 },
+  card: { borderWidth: 1, borderRadius: 24, padding: 20 },
+  progress: { fontSize: 14, fontWeight: "800", marginBottom: 8, textTransform: "uppercase" },
+  question: { fontSize: 24, fontWeight: "800", marginBottom: 18 },
+  answers: { gap: 12 },
 });
