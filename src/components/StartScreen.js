@@ -1,5 +1,6 @@
 import { StyleSheet, Switch, Text, View } from "react-native";
 import { useTheme } from "../theme";
+import CategoryPicker from "./CategoryPicker";
 import ColorPicker from "./ColorPicker";
 import PrimaryButton from "./PrimaryButton";
 import Stepper from "./Stepper";
@@ -17,15 +18,23 @@ function Setting({ title, children }) {
   );
 }
 
-// settings: { timerOn, seconds, palette }
-export default function StartScreen({ category, settings, onChange, onPlay }) {
+// settings: { categories, timerOn, seconds, palette }
+export default function StartScreen({ categories, perGame, settings, onChange, onPlay }) {
   const t = useTheme();
   const set = (patch) => onChange({ ...settings, ...patch });
 
   return (
     <View style={[styles.card, { backgroundColor: t.surface, borderColor: t.border }]}>
       <Text style={[styles.title, { color: t.accent }]}>Trivia Showdown</Text>
-      <Text style={[styles.category, { color: t.text }]}>{category}</Text>
+      <Text style={[styles.subtitle, { color: t.muted }]}>{perGame} random questions per game</Text>
+
+      <Setting title="CATEGORIES">
+        <CategoryPicker
+          options={categories}
+          selected={settings.categories}
+          onChange={(selected) => set({ categories: selected })}
+        />
+      </Setting>
 
       <Setting title="TIMER PER QUESTION">
         <View style={styles.switchRow}>
@@ -61,7 +70,7 @@ export default function StartScreen({ category, settings, onChange, onPlay }) {
 const styles = StyleSheet.create({
   card: { borderWidth: 1, borderRadius: 24, padding: 20 },
   title: { fontSize: 34, fontWeight: "900", textAlign: "center" },
-  category: { fontSize: 18, fontWeight: "600", textAlign: "center", marginTop: 4, marginBottom: 12 },
+  subtitle: { fontSize: 15, fontWeight: "600", textAlign: "center", marginTop: 4, marginBottom: 4 },
   setting: { marginTop: 18, gap: 12 },
   settingTitle: { fontSize: 12, fontWeight: "800", letterSpacing: 1 },
   switchRow: { flexDirection: "row", justifyContent: "space-between", alignItems: "center" },

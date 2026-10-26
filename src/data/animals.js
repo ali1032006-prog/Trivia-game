@@ -26,5 +26,30 @@ export const CATEGORY = {
       answers: ["Cheetah", "Lion", "Leopard", "Horse"],
       correct: 0,
     },
+    {
+      text: "What is the largest animal in the world?",
+      answers: ["Blue whale", "African elephant", "Great white shark", "Giraffe"],
+      correct: 0,
+    },
+    {
+      text: "How many hearts does an octopus have?",
+      answers: ["One", "Two", "Three", "Four"],
+      correct: 2,
+    },
+    {
+      text: "What do giant pandas mainly eat?",
+      answers: ["Bamboo", "Fish", "Berries", "Grass"],
+      correct: 0,
+    },
+    {
+      text: "What is a group of lions called?",
+      answers: ["Pack", "Pride", "Herd", "Flock"],
+      correct: 1,
+    },
+    {
+      text: "Which mammal can truly fly?",
+      answers: ["Flying squirrel", "Bat", "Sugar glider", "Colugo"],
+      correct: 1,
+    },
   ],
 };
