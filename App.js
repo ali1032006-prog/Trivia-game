@@ -3,7 +3,7 @@ import { ScrollView, StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { StatusBar } from "expo-status-bar";
 import * as Haptics from "expo-haptics";
-import { CATEGORY } from "./src/data/animals";
+import { CATEGORY } from "./src/data/geography";
 import { ThemeContext, useTheme } from "./src/theme";
 import QuestionCard from "./src/components/QuestionCard";
 import ResultScreen from "./src/components/ResultScreen";
