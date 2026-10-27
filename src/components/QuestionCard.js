@@ -14,7 +14,6 @@ export default function QuestionCard({
 }) {
   const t = useTheme();
   const answered = picked !== null || timedOut;
-  const last = index === total - 1;
 
   return (
     <View style={[styles.card, { backgroundColor: t.surface, borderColor: t.border }]}>
@@ -56,7 +55,7 @@ export default function QuestionCard({
             timedOut={timedOut}
             correctAnswer={question.answers[question.correct]}
           />
-          <PrimaryButton title={last ? "See results" : "Next question"} onPress={onNext} />
+          <PrimaryButton title="Next" onPress={onNext} />
         </>
       )}
     </View>

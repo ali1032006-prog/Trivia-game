@@ -1,7 +1,5 @@
 import { StyleSheet, Switch, Text, View } from "react-native";
 import { useTheme } from "../theme";
-import BackgroundPicker from "./BackgroundPicker";
-import ColorPicker from "./ColorPicker";
 import DifficultyPicker from "./DifficultyPicker";
 import PrimaryButton from "./PrimaryButton";
 import Stepper from "./Stepper";
@@ -19,7 +17,7 @@ function Setting({ title, children }) {
   );
 }
 
-// settings: { difficulty, timerOn, seconds, palette, background }
+// settings: { difficulty, timerOn, seconds }
 export default function SettingsScreen({ summary, difficulties, perGame, settings, onChange, onBack, onStart }) {
   const t = useTheme();
   const set = (patch) => onChange({ ...settings, ...patch });
@@ -59,16 +57,8 @@ export default function SettingsScreen({ summary, difficulties, perGame, setting
         />
       </Setting>
 
-      <Setting title="COLOR THEME">
-        <ColorPicker value={settings.palette} onChange={(palette) => set({ palette })} />
-      </Setting>
-
-      <Setting title="BACKGROUND">
-        <BackgroundPicker value={settings.background} onChange={(background) => set({ background })} />
-      </Setting>
-
       <PrimaryButton title="Start" onPress={onStart} />
-      <PrimaryButton title="Back to categories" secondary onPress={onBack} />
+      <PrimaryButton title="Back" secondary onPress={onBack} />
     </View>
   );
 }

@@ -143,8 +143,8 @@ function Game({ settings, setSettings }) {
         {screen === "home" && (
           <HomeScreen
             categories={CATEGORIES}
-            selected={settings.categories}
-            onChange={(categories) => setSettings({ ...settings, categories })}
+            settings={settings}
+            onChange={setSettings}
             onNext={goTo("settings")}
           />
         )}
