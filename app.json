@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "Trivia Game",
+    "name": "Trivia Showdown",
     "slug": "trivia-game",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -18,7 +18,11 @@
       }
     },
     "web": {
-      "favicon": "./assets/favicon.png"
+      "favicon": "./assets/favicon.png",
+      "bundler": "metro",
+      "output": "single",
+      "name": "Trivia Showdown",
+      "themeColor": "#7c3aed"
     }
   }
 }

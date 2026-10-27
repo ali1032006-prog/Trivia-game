@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef } from "react";
-import { Animated, Easing, StyleSheet, Text, useWindowDimensions, View } from "react-native";
+import { Animated, Easing, Platform, StyleSheet, useWindowDimensions, View } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { BACKGROUNDS, PALETTES } from "../theme";
 
@@ -53,7 +53,7 @@ function Particle({ kind, seed, width, height, color }) {
           toValue: 1,
           duration: seed.duration,
           easing: kind === "twinkle" ? Easing.inOut(Easing.sin) : Easing.linear,
-          useNativeDriver: true,
+          useNativeDriver: Platform.OS !== "web",
         })
       ),
     ]);

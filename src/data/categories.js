@@ -22,7 +22,7 @@ export const CATEGORIES = [
 
   { id: 17, name: "Science & Nature", short: "Science & Nature", genre: "science", emoji: "🔬" },
   { id: 18, name: "Science: Computers", short: "Computers", genre: "science", emoji: "💻" },
-  { id: 19, name: "Science: Mathematics", short: "Mathematics", genre: "science", emoji: "➗" },
+  { id: 19, name: "Science: Mathematics", short: "Math", genre: "science", emoji: "➗" },
   { id: 30, name: "Science: Gadgets", short: "Gadgets", genre: "science", emoji: "📱" },
 
   { id: 9, name: "General Knowledge", short: "General Knowledge", genre: "world", emoji: "🧠" },
@@ -39,9 +39,10 @@ export const CATEGORIES = [
 ];
 
 export const DIFFICULTIES = [
-  { id: "easy", name: "Easy" },
-  { id: "medium", name: "Medium" },
-  { id: "hard", name: "Hard" },
+  { id: "easy", name: "Easy", color: "#2f9e44" },
+  { id: "medium", name: "Medium", color: "#e67700" },
+  { id: "hard", name: "Hard", color: "#e03131" },
 ];
 
-export const QUESTIONS_PER_GAME = 5;
+// Question count picker on the settings page.
+export const QUESTION_COUNT = { min: 5, max: 30, step: 5, initial: 10 };

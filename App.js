@@ -3,10 +3,10 @@ import { ScrollView, StyleSheet, Text, View } from "react-native";
 import AnimatedBackground from "./src/components/AnimatedBackground";
 import HomeScreen from "./src/components/HomeScreen";
 import SettingsScreen from "./src/components/SettingsScreen";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 import { StatusBar } from "expo-status-bar";
-import * as Haptics from "expo-haptics";
-import { CATEGORIES, DIFFICULTIES, GENRES, QUESTIONS_PER_GAME } from "./src/data/categories";
+import { buzz } from "./src/haptics";
+import { CATEGORIES, DIFFICULTIES, GENRES, QUESTION_COUNT } from "./src/data/categories";
 import { fetchQuestions } from "./src/api/trivia";
 import { getSeen, markSeen, resetSeen } from "./src/storage";
 import { ThemeContext, useTheme } from "./src/theme";
@@ -21,16 +21,19 @@ const newRound = { index: 0, score: 0, picked: null, timedOut: false, fiftyUsed:
 export default function App() {
   const [settings, setSettings] = useState({
     categories: [9],
-    difficulty: "medium",
+    difficulties: ["medium"],
+    count: QUESTION_COUNT.initial,
     timerOn: true,
     seconds: 30,
     palette: "grape",
     background: "sunrise",
   });
   return (
-    <ThemeContext.Provider value={{ palette: settings.palette, background: settings.background }}>
-      <Game settings={settings} setSettings={setSettings} />
-    </ThemeContext.Provider>
+    <SafeAreaProvider>
+      <ThemeContext.Provider value={{ palette: settings.palette, background: settings.background }}>
+        <Game settings={settings} setSettings={setSettings} />
+      </ThemeContext.Provider>
+    </SafeAreaProvider>
   );
 }
 
@@ -46,8 +49,7 @@ function Game({ settings, setSettings }) {
   const total = questions.length;
   const answered = round.picked !== null || round.timedOut;
   const chosen = CATEGORIES.filter((c) => settings.categories.includes(c.id));
-  const difficultyName = DIFFICULTIES.find((d) => d.id === settings.difficulty).name;
-  const heading = `${chosen.length === 1 ? chosen[0].name : "Mixed categories"} · ${difficultyName}`;
+  const heading = chosen.length === 1 ? chosen[0].name : "Mixed categories";
 
   // A question counts as seen the moment it is shown, so it is never asked again.
   useEffect(() => {
@@ -61,8 +63,8 @@ function Game({ settings, setSettings }) {
       const seen = await getSeen();
       const fresh = await fetchQuestions({
         categoryIds: settings.categories,
-        difficulty: settings.difficulty,
-        count: QUESTIONS_PER_GAME,
+        difficulties: settings.difficulties,
+        count: settings.count,
         seen,
       });
       if (load !== latestLoad.current) return; // cancelled
@@ -110,15 +112,13 @@ function Game({ settings, setSettings }) {
   const pick = (i) => {
     if (answered) return;
     const right = i === questions[round.index].correct;
-    Haptics.notificationAsync(
-      right ? Haptics.NotificationFeedbackType.Success : Haptics.NotificationFeedbackType.Error
-    );
+    buzz(right ? "success" : "error");
     setRound({ ...round, picked: i, score: round.score + (right ? 1 : 0) });
   };
 
   const expire = () => {
     if (answered) return;
-    Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
+    buzz("warning");
     setRound((r) => (r.picked === null ? { ...r, timedOut: true } : r));
   };
 
@@ -154,7 +154,7 @@ function Game({ settings, setSettings }) {
           <SettingsScreen
             summary={categorySummary}
             difficulties={DIFFICULTIES}
-            perGame={QUESTIONS_PER_GAME}
+            countRange={QUESTION_COUNT}
             settings={settings}
             onChange={setSettings}
             onBack={goTo("home")}
@@ -166,7 +166,7 @@ function Game({ settings, setSettings }) {
           <MessageScreen
             loading
             title="Getting your questions…"
-            body="This can take a few seconds."
+            body="Bigger games with several categories can take up to 20 seconds."
             actions={[{ title: "Cancel", secondary: true, onPress: goTo("settings") }]}
           />
         )}
@@ -189,6 +189,8 @@ function Game({ settings, setSettings }) {
           <QuestionCard
             key={round.index}
             question={questions[round.index]}
+            category={CATEGORIES.find((c) => c.id === questions[round.index].categoryId)}
+            difficulty={DIFFICULTIES.find((d) => d.id === questions[round.index].difficulty)}
             index={round.index}
             total={total}
             picked={round.picked}
@@ -221,7 +223,8 @@ function Game({ settings, setSettings }) {
 const styles = StyleSheet.create({
   root: { flex: 1 },
   safe: { flex: 1 },
-  content: { padding: 16, flexGrow: 1, justifyContent: "center" },
+  // Centered column that stays readable on tablets and desktop browsers.
+  content: { padding: 16, flexGrow: 1, justifyContent: "center", width: "100%", maxWidth: 720, alignSelf: "center" },
   header: {
     flexDirection: "row",
     justifyContent: "space-between",

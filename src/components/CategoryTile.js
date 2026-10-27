@@ -2,7 +2,10 @@ import { Pressable, StyleSheet, Text, View } from "react-native";
 import { useTheme } from "../theme";
 
 // Toggle button for one category: picture on top, short name below.
-export default function CategoryTile({ emoji, label, selected, onPress }) {
+// Tile widths leave room for the 8px gaps between columns.
+const WIDTHS = { 3: "31%", 4: "23%", 5: "18.4%" };
+
+export default function CategoryTile({ emoji, label, selected, columns = 3, onPress }) {
   const t = useTheme();
   return (
     <Pressable
@@ -13,6 +16,7 @@ export default function CategoryTile({ emoji, label, selected, onPress }) {
       style={({ pressed }) => [
         styles.tile,
         {
+          width: WIDTHS[columns],
           borderColor: selected ? t.accent : t.border,
           backgroundColor: selected ? `${t.accent}22` : t.surface,
         },
@@ -34,7 +38,6 @@ export default function CategoryTile({ emoji, label, selected, onPress }) {
 
 const styles = StyleSheet.create({
   tile: {
-    width: "31%",
     minHeight: 96,
     borderWidth: 2,
     borderRadius: 16,

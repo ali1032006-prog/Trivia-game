@@ -30,6 +30,9 @@ export default function AppearanceSheet({ visible, settings, onChange, onClose }
 const styles = StyleSheet.create({
   backdrop: { flex: 1, backgroundColor: "rgba(0,0,0,0.25)" },
   sheet: {
+    width: "100%",
+    maxWidth: 720,
+    alignSelf: "center",
     borderTopLeftRadius: 28,
     borderTopRightRadius: 28,
     borderWidth: 1,

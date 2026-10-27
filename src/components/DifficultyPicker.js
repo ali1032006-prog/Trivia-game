@@ -1,22 +1,38 @@
 import { Pressable, StyleSheet, Text, View } from "react-native";
 import { useTheme } from "../theme";
 
-// Segmented control: exactly one option is selected.
-export default function DifficultyPicker({ options, value, onChange }) {
+// Segmented multi-select: tap to toggle each difficulty; at least one stays on.
+export default function DifficultyPicker({ options, selected, onChange }) {
   const t = useTheme();
+
+  const toggle = (id) => {
+    if (selected.includes(id)) {
+      if (selected.length > 1) onChange(selected.filter((s) => s !== id));
+    } else {
+      onChange(options.map((o) => o.id).filter((o) => o === id || selected.includes(o)));
+    }
+  };
+
   return (
     <View style={[styles.row, { borderColor: t.accent }]}>
-      {options.map((o) => {
-        const on = o.id === value;
+      {options.map((o, i) => {
+        const on = selected.includes(o.id);
         return (
           <Pressable
             key={o.id}
-            accessibilityRole="button"
-            accessibilityState={{ selected: on }}
-            onPress={() => onChange(o.id)}
-            style={[styles.item, { backgroundColor: on ? t.accent : "transparent" }]}
+            accessibilityRole="checkbox"
+            accessibilityState={{ checked: on }}
+            onPress={() => toggle(o.id)}
+            style={[
+              styles.item,
+              i > 0 && { borderLeftWidth: 2, borderLeftColor: t.accent },
+              { backgroundColor: on ? t.accent : "transparent" },
+            ]}
           >
-            <Text style={[styles.text, { color: on ? "#fff" : t.text }]}>{o.name}</Text>
+            <Text style={[styles.text, { color: on ? "#fff" : t.text }]}>
+              {on ? "✓ " : ""}
+              {o.name}
+            </Text>
           </Pressable>
         );
       })}

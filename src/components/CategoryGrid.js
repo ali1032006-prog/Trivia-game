@@ -1,10 +1,13 @@
-import { Pressable, StyleSheet, Text, View } from "react-native";
+import { Pressable, StyleSheet, Text, useWindowDimensions, View } from "react-native";
 import { useTheme } from "../theme";
 import CategoryTile from "./CategoryTile";
 
 // Categories grouped by genre as toggle buttons. At least one stays selected.
 export default function CategoryGrid({ genres, categories, selected, onChange }) {
   const t = useTheme();
+  // More tiles per row on wider screens (the page column caps at 720px).
+  const { width } = useWindowDimensions();
+  const columns = width < 480 ? 3 : width < 640 ? 4 : 5;
 
   const update = (next) => {
     if (next.length > 0) onChange(next);
@@ -46,6 +49,7 @@ export default function CategoryGrid({ genres, categories, selected, onChange })
               {items.map((c) => (
                 <CategoryTile
                   key={c.id}
+                  columns={columns}
                   emoji={c.emoji}
                   label={c.short}
                   selected={selected.includes(c.id)}

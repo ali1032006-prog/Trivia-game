@@ -3,13 +3,15 @@ import { useTheme } from "../theme";
 import AnswerButton from "./AnswerButton";
 import Feedback from "./Feedback";
 import FiftyFiftyButton from "./FiftyFiftyButton";
+import QuestionTags from "./QuestionTags";
 import PrimaryButton from "./PrimaryButton";
 import TimerBar from "./TimerBar";
 
 // question: { text, answers, correct }; picked: index tapped or null
 // timerSeconds: null for no timer; timedOut: time ran out before a tap
+// category / difficulty: shown as tags above the question
 export default function QuestionCard({
-  question, index, total, picked, timedOut, timerSeconds, hidden = [], fiftyUsed, onFifty,
+  question, category, difficulty, index, total, picked, timedOut, timerSeconds, hidden = [], fiftyUsed, onFifty,
   onPick, onExpire, onNext,
 }) {
   const t = useTheme();
@@ -23,6 +25,7 @@ export default function QuestionCard({
       <Text style={[styles.progress, { color: t.accent }]}>
         Question {index + 1} of {total}
       </Text>
+      <QuestionTags category={category} difficulty={difficulty} />
       <Text style={[styles.question, { color: t.text }]}>{question.text}</Text>
 
       <View style={styles.answers}>

@@ -17,8 +17,8 @@ function Setting({ title, children }) {
   );
 }
 
-// settings: { difficulty, timerOn, seconds }
-export default function SettingsScreen({ summary, difficulties, perGame, settings, onChange, onBack, onStart }) {
+// settings: { difficulties, count, timerOn, seconds }
+export default function SettingsScreen({ summary, difficulties, countRange, settings, onChange, onBack, onStart }) {
   const t = useTheme();
   const set = (patch) => onChange({ ...settings, ...patch });
 
@@ -26,14 +26,24 @@ export default function SettingsScreen({ summary, difficulties, perGame, setting
     <View style={[styles.card, { backgroundColor: t.surface, borderColor: t.border }]}>
       <Text style={[styles.title, { color: t.accent }]}>Settings</Text>
       <Text style={[styles.subtitle, { color: t.muted }]}>
-        {summary} · {perGame} questions, never repeated
+        {summary} · questions never repeat
       </Text>
 
-      <Setting title="DIFFICULTY">
+      <Setting title="NUMBER OF QUESTIONS">
+        <Stepper
+          value={settings.count}
+          min={countRange.min}
+          max={countRange.max}
+          step={countRange.step}
+          onChange={(count) => set({ count })}
+        />
+      </Setting>
+
+      <Setting title="DIFFICULTY (PICK ONE OR MORE)">
         <DifficultyPicker
           options={difficulties}
-          value={settings.difficulty}
-          onChange={(difficulty) => set({ difficulty })}
+          selected={settings.difficulties}
+          onChange={(selected) => set({ difficulties: selected })}
         />
       </Setting>
 
