@@ -6,7 +6,7 @@ import SettingsScreen from "./src/components/SettingsScreen";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { StatusBar } from "expo-status-bar";
 import * as Haptics from "expo-haptics";
-import { CATEGORIES, DIFFICULTIES, QUESTIONS_PER_GAME } from "./src/data/categories";
+import { CATEGORIES, DIFFICULTIES, GENRES, QUESTIONS_PER_GAME } from "./src/data/categories";
 import { fetchQuestions } from "./src/api/trivia";
 import { getSeen, markSeen, resetSeen } from "./src/storage";
 import { ThemeContext, useTheme } from "./src/theme";
@@ -142,6 +142,7 @@ function Game({ settings, setSettings }) {
 
         {screen === "home" && (
           <HomeScreen
+            genres={GENRES}
             categories={CATEGORIES}
             settings={settings}
             onChange={setSettings}
