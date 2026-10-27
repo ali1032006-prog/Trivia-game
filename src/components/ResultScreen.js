@@ -2,7 +2,7 @@ import { StyleSheet, Text, View } from "react-native";
 import { useTheme } from "../theme";
 import PrimaryButton from "./PrimaryButton";
 
-export default function ResultScreen({ score, total, onRestart, onSettings }) {
+export default function ResultScreen({ score, total, onRestart, onSettings, onHome }) {
   const t = useTheme();
   return (
     <View style={[styles.card, { backgroundColor: t.surface, borderColor: t.border }]}>
@@ -12,6 +12,7 @@ export default function ResultScreen({ score, total, onRestart, onSettings }) {
       </Text>
       <PrimaryButton title="Play again" onPress={onRestart} />
       <PrimaryButton title="Change settings" secondary onPress={onSettings} />
+      <PrimaryButton title="Change categories" secondary onPress={onHome} />
     </View>
   );
 }

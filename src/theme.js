@@ -1,5 +1,4 @@
 import { createContext, useContext } from "react";
-import { useColorScheme } from "react-native";
 
 // Customizable palettes: an accent plus one color per answer slot.
 export const PALETTES = {
@@ -9,10 +8,42 @@ export const PALETTES = {
   mint: { label: "Mint", accent: "#0d9488", answers: ["#12b886", "#40c057", "#3bc9db", "#fab005"] },
 };
 
+// Animated backdrops. `tone` decides whether text/cards use the light or dark neutrals.
+// `kind` is the animation: rise | bubble | fall | twinkle. `particle: null` uses the answer colors.
+export const BACKGROUNDS = {
+  sunrise: {
+    label: "Sunrise",
+    tone: "light",
+    gradient: ["#ffe3ec", "#ffd1a9", "#fff3b0"],
+    kind: "rise",
+    particle: "#ffffff",
+  },
+  night: {
+    label: "Night Sky",
+    tone: "dark",
+    gradient: ["#0f1030", "#2a1a5e", "#4b2a7b"],
+    kind: "twinkle",
+    particle: "#ffffff",
+  },
+  ocean: {
+    label: "Ocean",
+    tone: "light",
+    gradient: ["#c9f0ff", "#8fd3f4", "#5fb5e8"],
+    kind: "bubble",
+    particle: "#ffffff",
+  },
+  confetti: {
+    label: "Confetti",
+    tone: "light",
+    gradient: ["#f6f3ff", "#fdf2ff", "#eef7ff"],
+    kind: "fall",
+    particle: null,
+  },
+};
+
 const light = {
-  bg: "#f6f3ff",
-  surface: "#ffffff",
   text: "#1c1e26",
+  surface: "#ffffff",
   muted: "#666b7a",
   good: "#1a8f4c",
   goodBg: "#dff7e8",
@@ -22,9 +53,8 @@ const light = {
 };
 
 const dark = {
-  bg: "#14151b",
-  surface: "#1f2129",
   text: "#eceef5",
+  surface: "#1f2129",
   muted: "#9aa0b2",
   good: "#5fd18b",
   goodBg: "#17382a",
@@ -33,10 +63,12 @@ const dark = {
   border: "#353844",
 };
 
-export const ThemeContext = createContext("grape");
+export const ThemeContext = createContext({ palette: "grape", background: "sunrise" });
 
 export function useTheme() {
-  const palette = PALETTES[useContext(ThemeContext)];
-  const base = useColorScheme() === "dark" ? dark : light;
-  return { ...base, accent: palette.accent, answers: palette.answers };
+  const { palette, background } = useContext(ThemeContext);
+  const p = PALETTES[palette];
+  const bg = BACKGROUNDS[background];
+  const base = bg.tone === "dark" ? dark : light;
+  return { ...base, accent: p.accent, answers: p.answers, background: bg };
 }

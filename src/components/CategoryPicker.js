@@ -1,16 +1,19 @@
 import { useState } from "react";
-import { Pressable, StyleSheet, Text, View } from "react-native";
+import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { useTheme } from "../theme";
 
 // Drop-down multi-select. `selected` is a list of option ids; at least one stays selected.
-export default function CategoryPicker({ options, selected, onChange }) {
+export default function CategoryPicker({ options, selected, onChange, defaultOpen = false }) {
   const t = useTheme();
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState(defaultOpen);
 
   const allSelected = selected.length === options.length;
+  const names = options.filter((o) => selected.includes(o.id)).map((o) => o.name);
   const summary = allSelected
     ? `All categories (${options.length})`
-    : options.filter((o) => selected.includes(o.id)).map((o) => o.name).join(", ");
+    : names.length <= 2
+      ? names.join(", ")
+      : `${names.length} categories`;
 
   const toggle = (id) => {
     if (selected.includes(id)) {
@@ -34,10 +37,12 @@ export default function CategoryPicker({ options, selected, onChange }) {
 
       {open && (
         <View style={[styles.menu, { borderColor: t.border, backgroundColor: t.surface }]}>
-          <Row label="Select all" checked={allSelected} onPress={() => onChange(options.map((o) => o.id))} />
-          {options.map((o) => (
-            <Row key={o.id} label={o.name} checked={selected.includes(o.id)} onPress={() => toggle(o.id)} />
-          ))}
+          <ScrollView nestedScrollEnabled style={styles.scroll}>
+            <Row label="Select all" checked={allSelected} onPress={() => onChange(options.map((o) => o.id))} />
+            {options.map((o) => (
+              <Row key={o.id} label={o.name} checked={selected.includes(o.id)} onPress={() => toggle(o.id)} />
+            ))}
+          </ScrollView>
         </View>
       )}
     </View>
@@ -75,8 +80,9 @@ const styles = StyleSheet.create({
   summary: { flex: 1, fontSize: 16, fontWeight: "600" },
   arrow: { fontSize: 18, fontWeight: "800" },
   menu: { marginTop: 8, borderWidth: 1, borderRadius: 14, paddingVertical: 4 },
+  scroll: { maxHeight: 300 },
   row: { flexDirection: "row", alignItems: "center", minHeight: 48, paddingHorizontal: 14, gap: 12 },
   box: { width: 24, height: 24, borderRadius: 7, borderWidth: 2, alignItems: "center", justifyContent: "center" },
   tick: { color: "#fff", fontWeight: "900", fontSize: 14, lineHeight: 16 },
-  rowLabel: { fontSize: 16 },
+  rowLabel: { flex: 1, fontSize: 16 },
 });

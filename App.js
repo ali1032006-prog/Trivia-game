@@ -1,33 +1,34 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { ScrollView, StyleSheet, Text, View } from "react-native";
+import AnimatedBackground from "./src/components/AnimatedBackground";
+import HomeScreen from "./src/components/HomeScreen";
+import SettingsScreen from "./src/components/SettingsScreen";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { StatusBar } from "expo-status-bar";
 import * as Haptics from "expo-haptics";
-import { CATEGORIES, QUESTIONS_PER_GAME } from "./src/data/categories";
+import { CATEGORIES, DIFFICULTIES, QUESTIONS_PER_GAME } from "./src/data/categories";
+import { fetchQuestions } from "./src/api/trivia";
+import { getSeen, markSeen, resetSeen } from "./src/storage";
 import { ThemeContext, useTheme } from "./src/theme";
 import { shuffle, shuffleAnswers } from "./src/shuffle";
+import MessageScreen from "./src/components/MessageScreen";
 import QuestionCard from "./src/components/QuestionCard";
 import ResultScreen from "./src/components/ResultScreen";
 import ScoreBoard from "./src/components/ScoreBoard";
-import StartScreen from "./src/components/StartScreen";
 
 const newRound = { index: 0, score: 0, picked: null, timedOut: false, fiftyUsed: false, hidden: [] };
 
-// Pool the chosen categories, then deal QUESTIONS_PER_GAME random ones with shuffled answers.
-const dealQuestions = (categoryIds) =>
-  shuffle(CATEGORIES.filter((c) => categoryIds.includes(c.id)).flatMap((c) => c.questions))
-    .slice(0, QUESTIONS_PER_GAME)
-    .map(shuffleAnswers);
-
 export default function App() {
   const [settings, setSettings] = useState({
-    categories: CATEGORIES.map((c) => c.id),
+    categories: [9],
+    difficulty: "medium",
     timerOn: true,
     seconds: 30,
     palette: "grape",
+    background: "sunrise",
   });
   return (
-    <ThemeContext.Provider value={settings.palette}>
+    <ThemeContext.Provider value={{ palette: settings.palette, background: settings.background }}>
       <Game settings={settings} setSettings={setSettings} />
     </ThemeContext.Provider>
   );
@@ -35,26 +36,74 @@ export default function App() {
 
 function Game({ settings, setSettings }) {
   const t = useTheme();
-  const [screen, setScreen] = useState("start"); // "start" | "play" | "result"
+  // "home" | "settings" | "loading" | "play" | "result" | "error"
+  const [screen, setScreen] = useState("home");
+  const [problem, setProblem] = useState(null); // { title, body, exhausted }
   const [round, setRound] = useState(newRound);
   const [questions, setQuestions] = useState([]);
+  const latestLoad = useRef(0);
 
   const total = questions.length;
   const answered = round.picked !== null || round.timedOut;
   const chosen = CATEGORIES.filter((c) => settings.categories.includes(c.id));
-  const heading = chosen.length === 1 ? chosen[0].name : "Mixed categories";
+  const difficultyName = DIFFICULTIES.find((d) => d.id === settings.difficulty).name;
+  const heading = `${chosen.length === 1 ? chosen[0].name : "Mixed categories"} · ${difficultyName}`;
 
-  const play = () => {
-    setQuestions(dealQuestions(settings.categories));
-    setRound(newRound);
-    setScreen("play");
+  // A question counts as seen the moment it is shown, so it is never asked again.
+  useEffect(() => {
+    if (screen === "play" && questions[round.index]) markSeen(questions[round.index].text);
+  }, [screen, round.index, questions]);
+
+  const play = async () => {
+    const load = ++latestLoad.current;
+    setScreen("loading");
+    try {
+      const seen = await getSeen();
+      const fresh = await fetchQuestions({
+        categoryIds: settings.categories,
+        difficulty: settings.difficulty,
+        count: QUESTIONS_PER_GAME,
+        seen,
+      });
+      if (load !== latestLoad.current) return; // cancelled
+      if (fresh.length === 0) {
+        setProblem({
+          title: "No new questions",
+          body: "You've already seen every question we could find for these settings. Try other categories or a different difficulty, or reset your history.",
+          exhausted: true,
+        });
+        return setScreen("error");
+      }
+      setQuestions(fresh.map(shuffleAnswers));
+      setRound(newRound);
+      setScreen("play");
+    } catch {
+      if (load !== latestLoad.current) return;
+      setProblem({
+        title: "Couldn't load questions",
+        body: "Check your internet connection and try again.",
+        exhausted: false,
+      });
+      setScreen("error");
+    }
+  };
+
+  const goTo = (target) => () => {
+    latestLoad.current++; // cancels a load that is still in flight
+    setScreen(target);
+  };
+  const categorySummary = chosen.length === 1 ? chosen[0].name : `${chosen.length} categories`;
+
+  const clearHistory = async () => {
+    await resetSeen();
+    play();
   };
 
   // 50/50: hide two wrong answers; once per game.
   const fifty = () => {
     if (answered || round.fiftyUsed) return;
-    const { correct } = questions[round.index];
-    const wrong = questions[round.index].answers.map((_, i) => i).filter((i) => i !== correct);
+    const { correct, answers } = questions[round.index];
+    const wrong = answers.map((_, i) => i).filter((i) => i !== correct);
     setRound({ ...round, fiftyUsed: true, hidden: shuffle(wrong).slice(0, 2) });
   };
 
@@ -79,23 +128,59 @@ function Game({ settings, setSettings }) {
   };
 
   return (
-    <SafeAreaView style={[styles.safe, { backgroundColor: t.bg }]}>
-      <StatusBar style="auto" />
+    <View style={styles.root}>
+      <AnimatedBackground id={settings.background} palette={settings.palette} />
+      <SafeAreaView style={styles.safe}>
+      <StatusBar style={t.background.tone === "dark" ? "light" : "dark"} />
       <ScrollView contentContainerStyle={styles.content}>
-        {screen !== "start" && (
+        {(screen === "play" || screen === "result") && (
           <View style={styles.header}>
             <Text style={[styles.title, { color: t.text }]}>{heading}</Text>
             <ScoreBoard score={round.score} total={total} />
           </View>
         )}
 
-        {screen === "start" && (
-          <StartScreen
+        {screen === "home" && (
+          <HomeScreen
             categories={CATEGORIES}
+            selected={settings.categories}
+            onChange={(categories) => setSettings({ ...settings, categories })}
+            onNext={goTo("settings")}
+          />
+        )}
+
+        {screen === "settings" && (
+          <SettingsScreen
+            summary={categorySummary}
+            difficulties={DIFFICULTIES}
             perGame={QUESTIONS_PER_GAME}
             settings={settings}
             onChange={setSettings}
-            onPlay={play}
+            onBack={goTo("home")}
+            onStart={play}
+          />
+        )}
+
+        {screen === "loading" && (
+          <MessageScreen
+            loading
+            title="Getting your questions…"
+            body="This can take a few seconds."
+            actions={[{ title: "Cancel", secondary: true, onPress: goTo("settings") }]}
+          />
+        )}
+
+        {screen === "error" && problem && (
+          <MessageScreen
+            title={problem.title}
+            body={problem.body}
+            actions={[
+              problem.exhausted
+                ? { title: "Reset my history", onPress: clearHistory }
+                : { title: "Try again", onPress: play },
+              { title: "Change settings", secondary: true, onPress: goTo("settings") },
+              { title: "Change categories", secondary: true, onPress: goTo("home") },
+            ]}
           />
         )}
 
@@ -122,15 +207,18 @@ function Game({ settings, setSettings }) {
             score={round.score}
             total={total}
             onRestart={play}
-            onSettings={() => setScreen("start")}
+            onSettings={goTo("settings")}
+            onHome={goTo("home")}
           />
         )}
       </ScrollView>
-    </SafeAreaView>
+      </SafeAreaView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
+  root: { flex: 1 },
   safe: { flex: 1 },
   content: { padding: 16, flexGrow: 1, justifyContent: "center" },
   header: {
@@ -140,5 +228,5 @@ const styles = StyleSheet.create({
     gap: 12,
     marginBottom: 16,
   },
-  title: { fontSize: 18, fontWeight: "800", flexShrink: 1 },
+  title: { fontSize: 16, fontWeight: "800", flexShrink: 1 },
 });
